@@ -11,6 +11,7 @@
 // cut, render, or upload any video; it only hands the video's address in.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const YOUTUBE_URL =
   /^https:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:shorts\/|watch\?v=)|youtu\.be\/)[A-Za-z0-9_-]{11}(?:[?#].*)?$/;
@@ -20,7 +21,10 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-const sourcePath = "VIDEO.json";
+// Resolve VIDEO.json next to this file, not from the working directory:
+// the grader runs `node /bot/main.ts` from another cwd, so a relative
+// read fails there even though it works from the repo root.
+const sourcePath = fileURLToPath(new URL("./VIDEO.json", import.meta.url));
 let raw: string;
 try {
   raw = readFileSync(sourcePath, "utf8");
